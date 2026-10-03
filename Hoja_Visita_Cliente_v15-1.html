@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hoja de Visita a Cliente</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#111}
+header{background:#173f67;color:white;padding:16px 18px;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:20px}header small{opacity:.85}
+nav{display:flex;gap:7px;overflow:auto;padding:10px;background:white;border-bottom:1px solid #ddd}
+nav button{border:0;border-radius:8px;padding:9px 12px;background:#e8edf2;white-space:nowrap}
+nav button.active{background:#173f67;color:white}
+main{max-width:1100px;margin:auto;padding:14px}
+.card{background:white;border-radius:0;padding:18px 22px;margin-bottom:14px;box-shadow:none}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+label{font-size:13px;font-weight:bold;display:block;margin-bottom:4px}
+input,select,textarea{width:100%;padding:9px;border:1px solid #bbb;border-radius:7px;font-size:14px}
+button.primary{background:#173f67;color:white;border:0;border-radius:8px;padding:10px 14px;font-weight:bold}
+button.danger{background:#b3261e;color:white;border:0;border-radius:7px;padding:7px 10px}
+button.secondary{border:1px solid #aaa;background:white;border-radius:7px;padding:8px 11px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.schedule-editor{border:1px solid #bbb;border-radius:8px;padding:12px;margin-top:10px;background:#f8fafc}.schedule-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.schedule-item label{font-size:12px}.schedule-editor input{padding:8px}.schedule-editor h3{margin:0 0 10px}.schedule-editor .actions{margin-top:10px}
+.table-wrap{overflow:auto}.visit{border-collapse:collapse;width:100%;min-width:850px}
+.visit th,.visit td{border:1px solid #222;padding:0;text-align:center;font-size:14px;height:30px}
+.visit th{font-size:15px;background:#fff;height:72px}.visit input,.visit select{border:0;padding:3px;border-radius:0;min-width:80px;font-size:14px;background:#fff;text-align:center}.visit .name{text-align:left;padding-left:8px}
+.visit .name{min-width:210px}.visit .addr{min-width:130px}.visit .reason{min-width:135px}.visit .sign{min-width:150px;height:30px}
+.title{text-align:center;font-size:28px;font-weight:bold;margin:8px 0 30px}
+.topinfo{border-collapse:collapse;width:100%;margin-bottom:56px;table-layout:fixed}.topinfo td{border:1px solid #222;padding:0;height:31px;font-size:16px}.topinfo .head{padding:3px 12px;font-size:16px}.topinfo .value{padding:2px 12px;font-size:16px;height:31px}.topinfo input,.topinfo select{border:0;border-radius:0;padding:2px 0;font-size:16px;background:transparent}
+.lunch{font-weight:bold;font-size:18px;margin-top:28px}
+.list{display:grid;gap:7px}.listrow{display:flex;justify-content:space-between;align-items:center;border:1px solid #ddd;border-radius:8px;padding:8px}
+.hidden{display:none}.muted{color:#666;font-size:13px}
+@media(max-width:700px){.grid{grid-template-columns:1fr 1fr}.title{font-size:20px}}
+
+#nueva .card{max-width:1450px;margin:0 auto;padding:18px 20px;background:#fff}
+.title{text-align:center;font-size:34px;font-weight:700;margin:2px 0 22px;color:#000}
+.topinfo{border-collapse:collapse;width:100%;margin-bottom:26px}.topinfo td{border:2px solid #111;padding:9px 11px;font-size:21px;color:#000}
+.topinfo label{font-size:14px;margin-bottom:3px}
+.table-wrap{overflow-x:auto;overflow-y:visible}.visit{border-collapse:collapse;width:100%;min-width:1450px;table-layout:fixed}
+.visit th,.visit td{border:2px solid #111;padding:0 6px;text-align:center;font-size:21px;font-weight:500;height:52px;line-height:1.15;color:#000}
+.visit th{font-size:23px;background:#fff;height:96px;font-weight:700;color:#000}.visit input,.visit select{border:0;padding:6px 4px;border-radius:0;min-width:0;width:100%;font-size:21px;font-weight:600;color:#000;background:#fff;text-align:center;height:50px}
+.visit .name{text-align:left;padding-left:8px}
+#visittable th:nth-child(1),#visittable td:nth-child(1){width:7%}
+#visittable th:nth-child(2),#visittable td:nth-child(2){width:14%}
+#visittable th:nth-child(3),#visittable td:nth-child(3){width:25%}
+#visittable th:nth-child(4),#visittable td:nth-child(4){width:15%}
+#visittable th:nth-child(5),#visittable td:nth-child(5){width:16%}
+#visittable th:nth-child(6),#visittable td:nth-child(6){width:23%}
+
+@media print{
+ body{background:white}.no-print,header,nav,.actions,.management{display:none!important}
+ main{padding:0;max-width:none}.card{box-shadow:none;padding:0}.print-only{display:block!important}
+ .visit th,.visit td{padding:4px;font-size:12px}.visit{min-width:0}.topinfo{margin-bottom:18px}
+ .visit th{font-size:13px;height:62px}.visit td{height:34px}.visit input,.visit select{font-size:12px;height:32px}
+}
+</style>
+</head>
+<body>
+<header class="no-print"><h1>Hoja de Visita a Cliente</h1><small>Aplicación local • Los datos se guardan en este teléfono</small></header>
+<nav class="no-print">
+<button class="active" onclick="show('nueva',this)">Nueva visita</button>
+<button onclick="show('historial',this)">Historial</button>
+<button onclick="show('clientes',this)">Clientes</button>
+<button onclick="show('lugares',this)">Direcciones</button>
+<button onclick="show('motivos',this)">Motivos</button>
+<button onclick="show('personal',this)">Personal</button>
+</nav>
+
+<main>
+<section id="nueva">
+<div class="card">
+<div class="title">Hoja de Visita a Cliente</div>
+<table class="topinfo">
+<tr><td class="head">Sucursal</td><td class="head">Nombre quien visita</td><td class="head">Puesto quien visita</td></tr>
+<tr><td class="value"><input id="sucursal" value=""><br><span style="font-size:15px">Fecha <input id="fecha" type="date" style="width:130px"></span></td><td class="value"><select id="visitante"></select></td><td class="value"><select id="puesto"></select></td></tr>
+</table>
+<div class="table-wrap">
+<table class="visit" id="visittable">
+<thead><tr><th>No.</th><th>Hora visita</th><th>Nombre Completo del Cliente</th><th>Dirección del Cliente</th><th>Motivo de Visita</th><th>Firma del Cliente</th></tr></thead>
+<tbody></tbody>
+</table></div>
+<div class="lunch" id="lunchDisplay">ALMUERZO 2:00 pm - 3:00 pm</div>
+<div class="actions no-print"><button class="secondary" onclick="toggleScheduleEditor()">⚙️ Modificar horarios</button></div>
+<div id="scheduleEditor" class="schedule-editor no-print hidden">
+<h3>Modificar horarios</h3><div id="scheduleGrid" class="schedule-grid"></div>
+<div class="grid" style="margin-top:10px"><div><label>Inicio de almuerzo</label><input id="lunchStart" type="time"></div><div><label>Fin de almuerzo</label><input id="lunchEnd" type="time"></div></div>
+<div class="actions"><button class="primary" onclick="saveSchedule()">💾 Guardar horarios</button><button class="secondary" onclick="resetSchedule()">↩️ Restaurar horarios originales</button></div></div>
+<div class="actions no-print">
+<button class="primary" id="saveBtn" onclick="saveVisit()">💾 Guardar visita</button>
+<button class="primary" id="pdfBtn" onclick="downloadPDF()">📄 Descargar PDF</button><button class="primary" id="imgBtn" onclick="downloadImage()">🖼️ Descargar imagen</button>
+<button class="secondary" onclick="clearForm()">🧹 Nueva hoja</button>
+</div>
+<p id="status" class="muted no-print">La firma del cliente se deja intencionalmente en blanco en todas las hojas nuevas. En teléfono, desliza horizontalmente la tabla para leer cada columna; toca un campo para seleccionarlo.</p>
+</div>
+</section>
+
+<section id="historial" class="hidden">
+<div class="card"><h2>Historial</h2><div id="historyList" class="list"></div></div>
+</section>
+
+<section id="clientes" class="hidden management">
+<div class="card"><h2>Clientes</h2>
+<div class="grid"><div><label>Nombre completo</label><input id="newClient"></div><div><label>Dirección</label><select id="newClientAddr"></select></div><div><label>Teléfono (opcional)</label><input id="newPhone"></div></div>
+<div class="actions"><button class="primary" onclick="addClient()">Agregar cliente</button></div><hr><div id="clientList" class="list"></div>
+</div></section>
+
+<section id="lugares" class="hidden management">
+<div class="card"><h2>Direcciones / Lugares</h2>
+<div class="grid"><div><label>Nuevo lugar</label><input id="newPlace"></div></div>
+<div class="actions"><button class="primary" onclick="addPlace()">Agregar lugar</button></div><hr><div id="placeList" class="list"></div>
+</div></section>
+
+<section id="motivos" class="hidden management">
+<div class="card"><h2>Motivos de visita</h2>
+<div class="grid"><div><label>Nuevo motivo</label><input id="newReason"></div></div>
+<div class="actions"><button class="primary" onclick="addReason()">Agregar motivo</button></div><hr><div id="reasonList" class="list"></div>
+</div></section>
+
+<section id="personal" class="hidden management">
+<div class="card"><h2>Personal que visita</h2>
+<div class="grid"><div><label>Nombre</label><input id="newPerson"></div><div><label>Puesto</label><input id="newPosition" value="Promotor Individual"></div></div>
+<div class="actions"><button class="primary" onclick="addPerson()">Agregar</button></div><hr><div id="personList" class="list"></div>
+</div></section>
+</main>
+
+<script>
+const KEY='hvc_v1';
+const SCHEDULE_KEY='hvc_schedule_v1';
+const DEFAULT_SCHEDULE=['8:00-8:30','8:30-9:00','9:00-9:30','9:30-10:00','10:00-10:30','10:30-11:00','11:00-11:30','11:30-12:00','12:00-01:00','01:00-01:30','01:30-02:00','3:00-3:30','3:30-4:00','4:00-4:30','4:30-5:00'];
+const DEFAULT_LUNCH={start:'14:00',end:'15:00'};
+let schedule=JSON.parse(localStorage.getItem(SCHEDULE_KEY)||'null')||{times:[...DEFAULT_SCHEDULE],lunch:{...DEFAULT_LUNCH}};
+function persistSchedule(){try{localStorage.setItem(SCHEDULE_KEY,JSON.stringify(schedule));return true}catch(e){return false}}
+function formatTime(v){const [h,m]=String(v||'').split(':').map(Number);if(Number.isNaN(h)||Number.isNaN(m))return v||'';const ap=h>=12?'pm':'am';let hh=h%12;if(hh===0)hh=12;return `${hh}:${String(m).padStart(2,'0')}${ap}`}
+function updateLunchDisplay(){const el=document.getElementById('lunchDisplay');if(el)el.textContent=`ALMUERZO ${formatTime(schedule.lunch.start)} - ${formatTime(schedule.lunch.end)}`;}
+function toggleScheduleEditor(){const ed=document.getElementById('scheduleEditor');if(ed.classList.contains('hidden')){renderScheduleEditor();ed.classList.remove('hidden')}else ed.classList.add('hidden')}
+function renderScheduleEditor(){const g=document.getElementById('scheduleGrid');g.innerHTML=schedule.times.map((t,i)=>`<div class="schedule-item"><label>Visita ${i+1}</label><input class="schedule-time" value="${esc(t)}"></div>`).join('');document.getElementById('lunchStart').value=schedule.lunch.start;document.getElementById('lunchEnd').value=schedule.lunch.end;}
+function saveSchedule(){const vals=[...document.querySelectorAll('.schedule-time')].map(x=>x.value.trim());if(vals.length===15&&vals.every(Boolean)){schedule.times=vals;schedule.lunch={start:document.getElementById('lunchStart').value||DEFAULT_LUNCH.start,end:document.getElementById('lunchEnd').value||DEFAULT_LUNCH.end};persistSchedule();renderRows();updateLunchDisplay();document.getElementById('scheduleEditor').classList.add('hidden');status('✓ Horarios actualizados correctamente.')}else status('⚠ Completa todos los horarios.',false)}
+function resetSchedule(){schedule={times:[...DEFAULT_SCHEDULE],lunch:{...DEFAULT_LUNCH}};persistSchedule();renderScheduleEditor();renderRows();updateLunchDisplay();status('✓ Horarios originales restaurados.')}
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ places:['Zaragoza'],
+ reasons:['Cobro','Prospección','Seguimiento','Acuerdo de pago','Entrega de documentos'],
+ clients:[
+  {name:'Emily Yarisa Miche',addr:'Zaragoza',phone:''},
+  {name:'Luis Fernando Arana',addr:'Zaragoza',phone:''},
+  {name:'Brayan Marroquín',addr:'Zaragoza',phone:''},
+  {name:'Victor Manuel Yoc',addr:'Zaragoza',phone:''},
+  {name:'Roxana Betzabe',addr:'Zaragoza',phone:''},
+  {name:'Nancy Paola Noj',addr:'Zaragoza',phone:''},
+  {name:'Yessica Tala',addr:'Zaragoza',phone:''},
+  {name:'Teresa Pastor',addr:'Zaragoza',phone:''},
+  {name:'Evelyn Patricia',addr:'Zaragoza',phone:''},
+  {name:'Norma Tepeu',addr:'Zaragoza',phone:''},
+  {name:'Carlos Tubac',addr:'Zaragoza',phone:''}
+ ],
+ people:[{name:'Edgar Yax',position:'Promotor Individual'}],
+ history:[]
+};
+const exampleRows=[['8:00-8:30','Prospección','Zaragoza',''],['8:30-9:00','Prospección','Zaragoza',''],['9:00-9:30','Prospección','Zaragoza',''],['9:30-10:00','Prospección','Zaragoza',''],['10:00-10:30','Emily Yarisa Miche','Zaragoza','Cobro'],['10:30-11:00','Luis Fernando arana','Zaragoza','Cobro'],['11:00-11:30','Brayan Marroquin','Zaragoza','Cobro'],['11:30-12:00','Victor Manuel Yoc','Zaragoza','Cobro'],['12:00-01:00','Roxana betzabe','Zaragoza','Cobro'],['01:00-01:30','Nancy Paola Noj','Zaragoza','Cobro'],['01:30-02:00','Yessica Tala','Zaragoza','Cobro'],['3:00-3:30','Teresa pastor','Zaragoza','Cobro'],['3:30-4:00','Evelyn Patricia','Zaragoza','Cobro'],['4:00-4:30','Norma Tepeu','Zaragoza','Cobro'],['4:30-5:00','Carlos tubac','Zaragoza','Cobro']];
+
+exampleRows.slice(0,4).forEach(r=>{});
+['Prospección','Emily Yarisa Miche','Luis Fernando arana','Brayan Marroquin','Victor Manuel Yoc','Roxana betzabe','Nancy Paola Noj','Yessica Tala','Teresa pastor','Evelyn Patricia','Norma Tepeu','Carlos tubac'].forEach(n=>{if(n!=='Prospección'&&!db.clients.some(c=>c.name===n))db.clients.push({name:n,addr:'Zaragoza',phone:''})});
+function persist(){
+ try{localStorage.setItem(KEY,JSON.stringify(db)); return true}
+ catch(e){console.warn('No se pudo usar localStorage',e); return false}
+}
+function status(msg,ok=true){const el=document.getElementById('status');if(el){el.textContent=msg;el.style.fontWeight='bold';setTimeout(()=>{el.textContent='La firma del cliente se deja intencionalmente en blanco en todas las hojas nuevas. En teléfono, desliza horizontalmente la tabla para leer cada columna; toca un campo para seleccionarlo.';el.style.fontWeight='normal'},3500)}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function opts(arr,empty='Seleccionar'){return `<option value="">${empty}</option>`+arr.map(x=>`<option>${esc(x)}</option>`).join('')}
+function populate(){
+ document.getElementById('visitante').innerHTML=opts(db.people.map(x=>x.name),'Seleccionar');
+ document.getElementById('puesto').innerHTML='<option value="">Seleccionar</option>'+db.people.map(x=>`<option>${esc(x.position)}</option>`).join('');
+ document.getElementById('newClientAddr').innerHTML=opts(db.places);
+ renderRows();renderLists();renderHistory();
+}
+function renderRows(){
+ const tb=document.querySelector('#visittable tbody');tb.innerHTML='';
+ const times=schedule.times;
+ times.forEach((t,i)=>{
+  const tr=document.createElement('tr'); const ex=exampleRows[i]||[t,'','',''];
+  tr.innerHTML=`<td>${i+1}</td><td><input class="time" value="${t}" readonly></td>
+  <td><select class="name">${opts(db.clients.map(x=>x.name))}</select></td>
+  <td><select class="addr">${opts(db.places)}</select></td>
+  <td><select class="reason">${opts(db.reasons)}</select></td>
+  <td><input class="sign" value="" readonly></td>`;
+  tb.appendChild(tr);
+  const sel=tr.querySelector('.name'); const addr=tr.querySelector('.addr'); const reason=tr.querySelector('.reason');
+  if(ex[1] && db.clients.some(x=>x.name===ex[1])) sel.value=ex[1]; else if(i<4) sel.value='';
+  addr.value=ex[2]||''; reason.value=ex[3]||'';
+  sel.onchange=()=>{const c=db.clients.find(x=>x.name===sel.value); if(c) addr.value=c.addr||''};
+ });
+}
+function show(id,btn){document.querySelectorAll('main>section').forEach(x=>x.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='historial')renderHistory()}
+function addPlace(){let v=document.getElementById('newPlace').value.trim();if(v&&!db.places.includes(v)){db.places.push(v);persist();populate();document.getElementById('newPlace').value=''}}
+function addReason(){let v=document.getElementById('newReason').value.trim();if(v&&!db.reasons.includes(v)){db.reasons.push(v);persist();populate();document.getElementById('newReason').value=''}}
+function addClient(){let n=document.getElementById('newClient').value.trim(),a=document.getElementById('newClientAddr').value,p=document.getElementById('newPhone').value.trim();if(n){db.clients.push({name:n,addr:a,phone:p});persist();populate();document.getElementById('newClient').value='';document.getElementById('newPhone').value=''}}
+function addPerson(){let n=document.getElementById('newPerson').value.trim(),p=document.getElementById('newPosition').value.trim();if(n){db.people.push({name:n,position:p||'Promotor Individual'});persist();populate();document.getElementById('newPerson').value=''}}
+function renderLists(){
+ const pl=document.getElementById('placeList');pl.innerHTML=db.places.map((x,i)=>`<div class="listrow"><span>${esc(x)}</span><button class="danger" onclick="delPlace(${i})">Eliminar</button></div>`).join('');
+ const rl=document.getElementById('reasonList');rl.innerHTML=db.reasons.map((x,i)=>`<div class="listrow"><span>${esc(x)}</span><button class="danger" onclick="delReason(${i})">Eliminar</button></div>`).join('');
+ const cl=document.getElementById('clientList');cl.innerHTML=db.clients.map((x,i)=>`<div class="listrow"><span><b>${esc(x.name)}</b> — ${esc(x.addr||'')}</span><button class="danger" onclick="delClient(${i})">Eliminar</button></div>`).join('');
+ const pe=document.getElementById('personList');pe.innerHTML=db.people.map((x,i)=>`<div class="listrow"><span><b>${esc(x.name)}</b> — ${esc(x.position)}</span><button class="danger" onclick="delPerson(${i})">Eliminar</button></div>`).join('');
+}
+function delPlace(i){if(confirm('¿Eliminar este lugar?')){db.places.splice(i,1);persist();populate()}}
+function delReason(i){if(confirm('¿Eliminar este motivo?')){db.reasons.splice(i,1);persist();populate()}}
+function delClient(i){if(confirm('¿Eliminar este cliente?')){db.clients.splice(i,1);persist();populate()}}
+function delPerson(i){if(confirm('¿Eliminar este registro?')){db.people.splice(i,1);persist();populate()}}
+function collect(){
+ return {sucursal:document.getElementById('sucursal').value,fecha:document.getElementById('fecha').value,visitante:document.getElementById('visitante').value,puesto:document.getElementById('puesto').value,
+ rows:[...document.querySelectorAll('#visittable tbody tr')].map(tr=>({time:tr.querySelector('.time').value,name:tr.querySelector('.name').value,addr:tr.querySelector('.addr').value,reason:tr.querySelector('.reason').value}))};
+}
+function saveVisit(){
+ try{
+  const d=collect();
+  db.history.unshift({...d,id:Date.now()});
+  const ok=persist();
+  renderHistory();
+  status(ok?'✓ Visita guardada correctamente.':'✓ Visita guardada en esta sesión.');
+ }catch(e){console.error(e);status('⚠ No se pudo guardar: '+(e.message||e),false)}
+}
+function renderHistory(){const h=document.getElementById('historyList');if(!h)return;h.innerHTML=db.history.length?db.history.map((x,i)=>`<div class="listrow"><span><b>${esc(x.fecha||'Sin fecha')}</b> — ${esc(x.visitante)} — ${esc(x.sucursal)}</span><button class="secondary" onclick="loadHistory(${i})">Abrir</button></div>`).join(''):'<p class="muted">No hay hojas guardadas.</p>'}
+function loadHistory(i){const d=db.history[i];document.getElementById('sucursal').value=d.sucursal||'';document.getElementById('fecha').value=d.fecha||'';document.getElementById('visitante').value=d.visitante||'';document.getElementById('puesto').value=d.puesto||'';renderRows();[...document.querySelectorAll('#visittable tbody tr')].forEach((tr,j)=>{let r=d.rows[j];if(r){tr.querySelector('.time').value=r.time;tr.querySelector('.name').value=r.name;tr.querySelector('.addr').value=r.addr;tr.querySelector('.reason').value=r.reason}});show('nueva',document.querySelector('nav button'))}
+function clearForm(){document.getElementById('sucursal').value='';document.getElementById('fecha').value=new Date().toISOString().slice(0,10);document.getElementById('visitante').selectedIndex=0;document.getElementById('puesto').selectedIndex=0;renderRows();document.querySelectorAll('#visittable tbody tr').forEach(tr=>{tr.querySelector('.name').selectedIndex=0;tr.querySelector('.addr').selectedIndex=0;tr.querySelector('.reason').selectedIndex=0;})}
+function pdfText(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\x20-\x7E]/g,'?')}
+function pdfEscape(s){return pdfText(s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)')}
+function makePDF(d){
+ const W=842,H=595, cmds=[];
+ function txt(x,y,size,s,bold=false){cmds.push(`BT /${bold?'F2':'F1'} ${size} Tf ${x} ${y} Td (${pdfEscape(s)}) Tj ET`)}
+ function line(x1,y1,x2,y2){cmds.push(`${x1} ${y1} m ${x2} ${y2} l S`)}
+ txt(250,560,20,'Hoja de Visita a Cliente',true);
+ const infoTop=520, infoMid=504, infoBottom=485, xs=[45,300,560], xe=[300,560,797];
+ for(let i=0;i<3;i++){line(xs[i],infoTop,xe[i],infoTop);line(xs[i],infoBottom,xe[i],infoBottom);line(xs[i],infoTop,xs[i],infoBottom);line(xe[i],infoTop,xe[i],infoBottom)}
+ txt(52,507,9,'Sucursal',false); txt(307,507,9,'Nombre quien visita',false); txt(567,507,9,'Puesto quien visita',false);
+ txt(52,491,8,'Fecha '+d.fecha+'   '+d.sucursal); txt(307,491,9,d.visitante); txt(567,491,9,d.puesto);
+ const top=455,rowH=24, widths=[35,85,180,110,120,267], headers=['No.','Hora Visita','Nombre Completo del Cliente','Direccion del Cliente','Motivo de Visita','Firma del Cliente'];
+ let x=45;line(45,top,797,top);for(let w of widths){line(x,top,x,top-rowH*16);x+=w}line(797,top,797,top-rowH*16);
+ for(let r=0;r<=16;r++)line(45,top-r*rowH,797,top-r*rowH);
+ x=45;headers.forEach((h,i)=>{txt(x+3,top-16,9,h,true);x+=widths[i]});
+ d.rows.forEach((r,i)=>{let vals=[String(i+1),r.time,r.name,r.addr,r.reason,''];x=45;vals.forEach((v,j)=>{txt(x+3,top-(i+1)*rowH-16,8,pdfText(v));x+=widths[j]})});
+ txt(45,58,11,'ALMUERZO 2:00 pm - 3:00 pm',true);
+ const content=cmds.join('\n');const objs=[];
+ objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+ objs.push('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+ objs.push('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 842 595] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>');
+ objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+ objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+ objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
+ let pdf='%PDF-1.4\n',offs=[0];objs.forEach((o,i)=>{offs.push(pdf.length);pdf+=(i+1)+' 0 obj\n'+o+'\nendobj\n'});let start=pdf.length;pdf+='xref\n0 '+(objs.length+1)+'\n0000000000 65535 f \n';for(let i=1;i<offs.length;i++)pdf+=String(offs[i]).padStart(10,'0')+' 00000 n \n';pdf+=`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${start}\n%%EOF`;
+ return new Blob([pdf],{type:'application/pdf'});
+}
+
+function xmlEscape(s){
+ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function makeSheetSVG(d){
+ const W=1338,H=879, OUT_W=2676, OUT_H=1758, rows=d.rows||[];
+ const x0=124, x1=1378;
+ const cols=[124,344,567,849,1011,1164,1378];
+ const centers=[234,455.5,708,930,1087.5,1271];
+ const top=285, headerH=74, rowH=31;
+ let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${OUT_W}" height="${OUT_H}" viewBox="75 20 1338 879">
+ <rect width="${W}" height="${H}" fill="#fff"/>
+ <style>
+ text{font-family:'Trebuchet MS',Arial,sans-serif;fill:#000;font-weight:700}
+ .b{font-weight:700}
+ </style>
+
+ <text x="768" y="123" text-anchor="middle" font-size="34" class="b">Hoja de Visita a Cliente</text>
+
+ <g stroke="#111" stroke-width="2" fill="none">
+   <rect x="85" y="164" width="1330" height="63"/>
+   <line x1="528.3" y1="164" x2="528.3" y2="227"/>
+   <line x1="971.7" y1="164" x2="971.7" y2="227"/>
+   <line x1="85" y1="195.5" x2="1415" y2="195.5"/>
+ </g>
+ <text x="99" y="191" font-size="21">Sucursal</text>
+ <text x="541" y="191" font-size="21">Nombre quien visita</text>
+ <text x="985" y="191" font-size="21">Puesto quien visita</text>
+ <text x="99" y="222" font-size="21">Fecha ${xmlEscape(d.fecha||'')}</text>
+ <text x="541" y="222" font-size="21">${xmlEscape(d.visitante||'')}</text>
+ <text x="985" y="222" font-size="21">${xmlEscape(d.puesto||'')}</text>
+
+ <g stroke="#111" stroke-width="2" fill="none">
+   <rect x="${x0}" y="${top}" width="${x1-x0}" height="${headerH+15*rowH}"/>
+   <line x1="${cols[1]}" y1="${top}" x2="${cols[1]}" y2="${top+headerH+15*rowH}"/>
+   <line x1="${cols[2]}" y1="${top}" x2="${cols[2]}" y2="${top+headerH+15*rowH}"/>
+   <line x1="${cols[3]}" y1="${top}" x2="${cols[3]}" y2="${top+headerH+15*rowH}"/>
+   <line x1="${cols[4]}" y1="${top}" x2="${cols[4]}" y2="${top+headerH+15*rowH}"/>
+   <line x1="${cols[5]}" y1="${top}" x2="${cols[5]}" y2="${top+headerH+15*rowH}"/>
+ </g>`;
+
+ for(let r=0;r<=15;r++){
+   const y=top+headerH+r*rowH;
+   svg+=`<line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#111" stroke-width="2"/>`;
+ }
+
+ const headers=[
+   ['No.'],['Hora Visita'],['Nombre Completo','del Cliente'],
+   ['Dirección','del Cliente'],['Motivo de','Visita'],['Firma del','Cliente']
+ ];
+ headers.forEach((lines,i)=>{
+   if(lines.length===1){
+     svg+=`<text x="${centers[i]}" y="${top+29}" text-anchor="middle" font-size="21" class="b">${xmlEscape(lines[0])}</text>`;
+   }else{
+     svg+=`<text x="${centers[i]}" y="${top+28}" text-anchor="middle" font-size="21" class="b">${xmlEscape(lines[0])}</text>`;
+     svg+=`<text x="${centers[i]}" y="${top+51}" text-anchor="middle" font-size="21" class="b">${xmlEscape(lines[1])}</text>`;
+   }
+ });
+
+ rows.slice(0,15).forEach((r,i)=>{
+   const y=top+headerH+i*rowH+23;
+   const vals=[String(i+1),r.time||'',r.name||'',r.addr||'',r.reason||'',''];
+   vals.forEach((v,j)=>{
+     let size=21;
+     if(j===2 && String(v).length>23) size=19.5;
+     if(j===4 && String(v).length>16) size=19.5;
+     svg+=`<text x="${centers[j]}" y="${y}" text-anchor="middle" font-size="${size}">${xmlEscape(v)}</text>`;
+   });
+ });
+
+ svg+=`<text x="85" y="883" font-size="20" class="b">ALMUERZO 2:00pm-3:00pm</text>`;
+ svg+=`</svg>`;
+ return svg;
+}
+async function downloadImage(){
+ try{
+  const d=collect();
+  const svg=makeSheetSVG(d);
+  const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=async()=>{
+   const c=document.createElement('canvas');
+   c.width=img.naturalWidth || 2676; c.height=img.naturalHeight || 1758;
+   const ctx=c.getContext('2d');
+   ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+   ctx.drawImage(img,0,0,c.width,c.height);
+   URL.revokeObjectURL(url);
+   c.toBlob(async png=>{
+     if(!png){status('⚠ No se pudo crear la imagen.',false);return;}
+     const name='Hoja_Visita_Completa_'+(d.fecha||'sin_fecha')+'.png';
+     if(navigator.share && window.File){
+       try{
+         const file=new File([png],name,{type:'image/png'});
+         if(!navigator.canShare || navigator.canShare({files:[file]})){
+           await navigator.share({files:[file],title:'Hoja de Visita a Cliente'});
+           status('✓ Imagen preparada para compartir/guardar.');
+           return;
+         }
+       }catch(e){if(e && e.name==='AbortError')return;}
+     }
+     const a=document.createElement('a'); a.href=URL.createObjectURL(png); a.download=name; a.style.display='none';
+     document.body.appendChild(a); a.click(); a.remove();
+     status('✓ Imagen completa generada en alta resolución y con el mismo formato de la plantilla (2304 × 1377).');
+   },'image/png');
+  };
+  img.onerror=()=>{URL.revokeObjectURL(url);status('⚠ No se pudo crear la imagen.',false)};
+  img.src=url;
+ }catch(e){console.error(e);status('⚠ No se pudo generar la imagen: '+(e.message||e),false)}
+}
+
+async function downloadPDF(){
+ try{
+  const d=collect();
+  const blob=makePDF(d);
+  const name='Hoja_Visita_'+(d.fecha||'sin_fecha')+'.pdf';
+  const url=URL.createObjectURL(blob);
+  // En Android, compartir el archivo es más fiable que una descarga automática en algunos navegadores.
+  if(navigator.share && window.File){
+   try{
+    const file=new File([blob],name,{type:'application/pdf'});
+    if(!navigator.canShare || navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'Hoja de Visita a Cliente'});status('✓ PDF preparado para compartir/guardar.');URL.revokeObjectURL(url);return;}
+   }catch(e){if(e && e.name==='AbortError'){URL.revokeObjectURL(url);return}}
+  }
+  const a=document.createElement('a');a.href=url;a.download=name;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(e){}},5000);
+  status('✓ PDF generado. Si no se descargó, se abrirá para guardarlo.');
+  setTimeout(()=>{try{window.open(url,'_blank')}catch(e){}},500);
+ }catch(e){console.error(e);status('⚠ No se pudo generar el PDF: '+(e.message||e),false)}
+}
+document.getElementById('fecha').value='2026-10-05';populate();updateLunchDisplay();document.getElementById('visitante').value='Edgar Yax';document.getElementById('puesto').value='Promotor Individual';
+</script>
+</body></html>
